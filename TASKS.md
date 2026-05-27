@@ -75,18 +75,23 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 ## ✅ Phase 3 — Tasks Module
 
 ### Backend
-- [ ] Build `backend/routers/tasks.py`:
+- [x] Build `backend/routers/tasks.py`:
   - `GET /api/tasks` — list all, support `?project_id=`, `?status=`, `?priority=` filters
   - `POST /api/tasks` — create
   - `PUT /api/tasks/{id}` — update (status, priority, due_date, etc.)
   - `DELETE /api/tasks/{id}` — delete
   - `PATCH /api/tasks/{id}/status` — quick status update (used by kanban drag)
+  - Note: expanded the router started in Phase 2; mutations return `{ data, message }`. Verified all filters, CRUD, and that project `task_count` reflects task creation.
 
 ### Frontend
-- [ ] Build `frontend/hooks/useTasks.ts`: React Query hooks for all task operations
-- [ ] Build `frontend/app/tasks/page.tsx`: Full task list with filters (status, priority, project). Grouped by project or due date toggle
-- [ ] Build `frontend/components/ui/TaskRow.tsx`: Inline-editable task row with checkbox, title, priority badge, due date, project chip
-- [ ] Build `frontend/components/ui/TaskDialog.tsx`: Full task create/edit form
+- [x] Build `frontend/hooks/useTasks.ts`: React Query hooks for all task operations
+  - Note: useTasks (with filters), useCreateTask, useUpdateTask, useDeleteTask, useUpdateTaskStatus. All invalidate task lists + affected project caches.
+- [x] Build `frontend/app/tasks/page.tsx`: Full task list with filters (status, priority, project). Grouped by project or due date toggle
+  - Note: status/priority/project filters hit the API; grouping (Project / Due date buckets: Overdue, Today, This Week, Later, No due date) is client-side. Includes loading/error/empty states.
+- [x] Build `frontend/components/ui/TaskRow.tsx`: Inline-editable task row with checkbox, title, priority badge, due date, project chip
+  - Note: checkbox toggles done/backlog; title is inline-editable (click → input, Enter/blur saves, Esc cancels); overdue due dates render in destructive color; edit/delete in a dropdown.
+- [x] Build `frontend/components/ui/TaskDialog.tsx`: Full task create/edit form
+  - Note: date `<input type="date">` is converted to ISO datetime on submit. "No project" maps to null (Radix Select can't use an empty-string value, so a `"none"` sentinel is used).
 
 ---
 
