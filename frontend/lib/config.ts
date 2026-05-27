@@ -5,3 +5,6 @@ export const WEATHER_LOCATION = {
   latitude: 40.7128,
   longitude: -74.006,
 };
+
+// GitHub username for the activity widget. Change to your own handle.
+export const GITHUB_USERNAME = "torvalds";

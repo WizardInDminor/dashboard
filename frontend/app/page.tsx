@@ -3,6 +3,8 @@
 import * as React from "react";
 
 import { DailyBriefingWidget } from "@/components/widgets/DailyBriefingWidget";
+import { GithubActivityWidget } from "@/components/widgets/GithubActivityWidget";
+import { NewsWidget } from "@/components/widgets/NewsWidget";
 import { ProjectsWidget } from "@/components/widgets/ProjectsWidget";
 import { TaskSummaryWidget } from "@/components/widgets/TaskSummaryWidget";
 import { WeatherWidget } from "@/components/widgets/WeatherWidget";
@@ -43,6 +45,8 @@ export default function Home() {
         <TaskSummaryWidget />
         <ProjectsWidget />
         <WeatherWidget />
+        <NewsWidget />
+        <GithubActivityWidget />
       </div>
     </div>
   );
