@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
+import { AISidebar } from "@/components/layout/AISidebar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,6 +41,7 @@ export default function RootLayout({
               <main className="flex-1 overflow-y-auto p-6">{children}</main>
             </div>
           </div>
+          <AISidebar />
         </Providers>
       </body>
     </html>

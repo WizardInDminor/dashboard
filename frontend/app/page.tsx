@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { DailyBriefingWidget } from "@/components/widgets/DailyBriefingWidget";
 import { ProjectsWidget } from "@/components/widgets/ProjectsWidget";
 import { TaskSummaryWidget } from "@/components/widgets/TaskSummaryWidget";
 import { WeatherWidget } from "@/components/widgets/WeatherWidget";
@@ -36,6 +37,9 @@ export default function Home() {
         <p className="text-muted-foreground">{today}</p>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <DailyBriefingWidget />
+        </div>
         <TaskSummaryWidget />
         <ProjectsWidget />
         <WeatherWidget />

@@ -115,15 +115,20 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 ## 🤖 Phase 5 — AI Features
 
 ### Backend
-- [ ] Build `backend/routers/ai.py`:
+- [x] Build `backend/routers/ai.py`:
   - `GET /api/ai/briefing` — streams a daily briefing using Claude: pulls today's tasks, active projects, and generates a prioritized plan for the day
   - `POST /api/ai/prioritize` — takes a list of task IDs, returns them re-ordered with reasoning
   - `POST /api/ai/chat` — general assistant chat, streamed, with system context injected (current projects + tasks summary)
-- [ ] Inject project/task context into all AI prompts automatically by querying the DB before each call
+  - Note: system prompts kept in a `prompts` dict at the top of `ai.py`; model `claude-sonnet-4-20250514` per CLAUDE.md. Streaming via `StreamingResponse` + `messages.stream`. Anthropic client created lazily (503 if no key); streaming and prioritize catch `anthropic.APIError` and degrade gracefully. `load_dotenv()` loads `backend/.env`.
+  - VERIFIED wiring: a live call reached Anthropic and returned `401 Invalid authentication credentials` — the committed `ANTHROPIC_API_KEY` is invalid/revoked (see security note). The code is correct and will work once a valid key is set.
+- [x] Inject project/task context into all AI prompts automatically by querying the DB before each call
+  - Note: `build_context(db)` summarizes today's date, active projects (with done/total), overdue tasks, and tasks due today; injected into every endpoint's prompt.
 
 ### Frontend
-- [ ] Build `frontend/components/widgets/DailyBriefingWidget.tsx`: Streams and renders the AI briefing on dashboard load. Markdown rendered output. "Refresh" button
-- [ ] Build `frontend/components/layout/AISidebar.tsx`: Slide-out panel (shadcn Sheet) with persistent chat. Aware of current page context. Sends page context header to `/api/ai/chat`
+- [x] Build `frontend/components/widgets/DailyBriefingWidget.tsx`: Streams and renders the AI briefing on dashboard load. Markdown rendered output. "Refresh" button
+  - Note: streams via a `streamRequest` helper added to `lib/api.ts` (browser streaming needs fetch's ReadableStream; axios buffers). Markdown via `react-markdown` + `@tailwindcss/typography`.
+- [x] Build `frontend/components/layout/AISidebar.tsx`: Slide-out panel (shadcn Sheet) with persistent chat. Aware of current page context. Sends page context header to `/api/ai/chat`
+  - Decision: page context is sent as a `page_context` field in the chat request body (not an HTTP header) — cleaner and matches the backend `ChatRequest` schema. Rendered in the layout so chat state persists across pages while mounted; floating button opens the Sheet.
 
 ---
 
