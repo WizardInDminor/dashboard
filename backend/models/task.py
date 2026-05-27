@@ -15,6 +15,7 @@ class Task(Base):
     status = Column(String, nullable=False, default="backlog")
     priority = Column(String, nullable=False, default="medium")
     due_date = Column(DateTime, nullable=True)
+    sort_order = Column(Integer, nullable=False, default=0, server_default="0")
     project_id = Column(
         Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=True
     )

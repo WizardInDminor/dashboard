@@ -162,6 +162,34 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 
 ---
 
+## 🎓 Phase 8 — Manual Task Ordering
+
+### Backend
+- [x] Add `sort_order` integer column to the Task model (default 0)
+- [x] Add migration: drop and recreate tasks table (dev only, SQLite has no ALTER COLUMN)
+  - Decision: SQLite *does* support `ALTER TABLE ... ADD COLUMN` (only ALTER/DROP COLUMN are unsupported). Added `backend/migrate.py:ensure_sort_order_column()` which idempotently adds the column to a pre-existing DB, preserving existing tasks instead of dropping the table. Called from `main.py` before `create_all()`.
+- [x] Add `PATCH /api/tasks/reorder` endpoint — accepts an ordered list of task IDs
+  and updates each task's sort_order to match its position in the list
+  - Note: 404s if any submitted task id doesn't exist; returns `{ data: { count }, message }`.
+- [x] Update `GET /api/tasks` to sort by `sort_order ASC` by default when no other
+  sort is specified
+  - Note: orders by `sort_order ASC, created_at DESC` so newly created tasks (all sharing sort_order 0) stay stable.
+
+### Frontend
+- [x] Update `types/index.ts` to include `sort_order` on the Task interface
+- [x] Update the tasks page to use dnd-kit's SortableContext (already installed) to
+  make the full task list draggable vertically
+- [x] On drag end, call `PATCH /api/tasks/reorder` with the new order and optimistically
+  update the React Query cache so the UI doesn't flicker
+  - Note: `useReorderTasks` writes the new order to the cache in `onMutate` and invalidates all task lists in `onSettled` (other filter views become stale once global sort_order changes).
+- [x] Preserve sort_order across filter/grouping changes — when grouped by project or
+  due date, order within each group should respect sort_order
+  - Note: the flat `tasks` array is already in sort_order; each group renders its slice in that same order, and a wrapping `SortableContext` per group keeps the dragged row within its group while updating global sort_order.
+- [x] Add a subtle drag handle icon (GripVertical from lucide-react) to each TaskRow
+  so it's clear rows are draggable
+
+---
+
 ## 🚫 Blocked / Needs Decision
 - [ ] Calendar integration — needs decision on source (Google Calendar OAuth vs iCal URL vs manual entry)
 - [ ] SECURITY: `backend/.env` containing a real `ANTHROPIC_API_KEY` was committed to git history (now untracked going forward). The key is still exposed in prior history — recommend rotating the API key and, if desired, scrubbing it from history (e.g. `git filter-repo`). Needs owner decision.
@@ -175,3 +203,9 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
   Phase 5 AI Features, Phase 6 Integrations, Phase 7 Polish. Backend verified via
   TestClient; frontend `npm run build` passes for every phase. Remaining open items
   are the calendar integration decision and the leaked-API-key rotation (see below).
+- 2026-05-27 — Phase 8 Manual Task Ordering completed. Backend: `sort_order` column
+  (+ idempotent `migrate.py` instead of dropping the table), `PATCH /api/tasks/reorder`,
+  default sort by `sort_order`. Frontend: draggable task list via dnd-kit SortableContext
+  with per-group contexts, optimistic `useReorderTasks`, GripVertical handle on TaskRow.
+  Backend imports clean; frontend `npm run build` passes. Drag was not exercised in a
+  browser (no GUI in this environment); types + API verified.

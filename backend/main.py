@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import models  # noqa: F401 — register ORM models on Base before create_all
 from database import Base, engine
+from migrate import ensure_sort_order_column
 from routers import ai, dashboard, integrations, projects, tasks
 
+ensure_sort_order_column()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Personal Dashboard API", version="1.0.0")

@@ -97,6 +97,32 @@ export function useDeleteTask() {
   });
 }
 
+export function useReorderTasks(filters?: TaskFilters) {
+  const qc = useQueryClient();
+  const key = taskKeys.list(filters);
+  return useMutation({
+    mutationFn: async (orderedTasks: Task[]) => {
+      await api.patch("/api/tasks/reorder", {
+        task_ids: orderedTasks.map((t) => t.id),
+      });
+    },
+    // Optimistically write the new order so the list doesn't flicker.
+    onMutate: async (orderedTasks: Task[]) => {
+      await qc.cancelQueries({ queryKey: key });
+      const previous = qc.getQueryData<Task[]>(key);
+      qc.setQueryData<Task[]>(key, orderedTasks);
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) qc.setQueryData(key, context.previous);
+      toast.error("Failed to reorder tasks");
+    },
+    // Reordering changes global sort_order, so other cached filter views
+    // are now stale; refetch them all (the active view already matches).
+    onSettled: () => qc.invalidateQueries({ queryKey: taskKeys.all }),
+  });
+}
+
 export function useUpdateTaskStatus() {
   const qc = useQueryClient();
   return useMutation({

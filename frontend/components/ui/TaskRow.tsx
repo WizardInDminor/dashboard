@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Check, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Check, GripVertical, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import { cn } from "@/lib/utils";
 import {
@@ -52,6 +54,15 @@ export function TaskRow({
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
   const [editing, setEditing] = React.useState(false);
   const [title, setTitle] = React.useState(task.title);
 
@@ -85,7 +96,27 @@ export function TaskRow({
   }
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5">
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      className={cn(
+        "flex items-center gap-2 bg-background px-4 py-2.5",
+        isDragging && "relative z-10 opacity-60 shadow-sm"
+      )}
+    >
+      <button
+        type="button"
+        aria-label="Drag to reorder"
+        className="shrink-0 cursor-grab touch-none text-muted-foreground/50 hover:text-muted-foreground active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+
       <button
         type="button"
         onClick={toggleDone}
