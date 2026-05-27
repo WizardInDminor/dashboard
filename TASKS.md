@@ -98,14 +98,17 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 ## 🏠 Phase 4 — Dashboard Home
 
 ### Backend
-- [ ] Build `backend/routers/dashboard.py`:
+- [x] Build `backend/routers/dashboard.py`:
   - `GET /api/dashboard/summary` — returns: overdue task count, tasks due today, in-progress projects, recently updated projects
+  - Note: `overdue_count` and `due_today` exclude done tasks; "in-progress projects" = projects with status `active`, each with `total_tasks`/`done_tasks` for progress bars; `recent_projects` = top 5 by `updated_at`. Verified via TestClient.
 
 ### Widgets
-- [ ] Build `frontend/components/widgets/TaskSummaryWidget.tsx`: Shows today's tasks + overdue count. Links to /tasks
-- [ ] Build `frontend/components/widgets/ProjectsWidget.tsx`: Shows active projects with progress bars (done tasks / total tasks)
-- [ ] Build `frontend/components/widgets/WeatherWidget.tsx`: Calls Open-Meteo API (https://api.open-meteo.com/v1/forecast) — auto-detect or hardcode a lat/lon in a config. Shows temp, condition, weekly forecast
-- [ ] Build `frontend/app/page.tsx`: Dashboard home assembling all widgets in a responsive grid. Shows current date + greeting
+- [x] Build `frontend/components/widgets/TaskSummaryWidget.tsx`: Shows today's tasks + overdue count. Links to /tasks
+- [x] Build `frontend/components/widgets/ProjectsWidget.tsx`: Shows active projects with progress bars (done tasks / total tasks)
+- [x] Build `frontend/components/widgets/WeatherWidget.tsx`: Calls Open-Meteo API (https://api.open-meteo.com/v1/forecast) — auto-detect or hardcode a lat/lon in a config. Shows temp, condition, weekly forecast
+  - Decision: hardcoded a default lat/lon in `lib/config.ts` (`WEATHER_LOCATION`, New York). Uses axios (not raw fetch) for the external call. NOTE: Open-Meteo is blocked (HTTP 403) by this container's egress policy, so the live call couldn't be verified here — but it's a client-side (browser) fetch and the widget degrades gracefully on error, so it should work in a normal browser.
+- [x] Build `frontend/app/page.tsx`: Dashboard home assembling all widgets in a responsive grid. Shows current date + greeting
+  - Note: greeting/date computed after mount (useEffect) to avoid SSR hydration mismatch from build-time vs client time.
 
 ---
 
