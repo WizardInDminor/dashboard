@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine, Base
 
-# Import routers (add as they are built)
-# from routers import projects, tasks, dashboard, integrations, ai
+import models  # noqa: F401 — register ORM models on Base before create_all
+from database import Base, engine
+from routers import ai, dashboard, integrations, projects, tasks
 
 Base.metadata.create_all(bind=engine)
 
@@ -17,12 +17,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register routers here as they are built:
-# app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
-# app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
-# app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
-# app.include_router(integrations.router, prefix="/api/integrations", tags=["integrations"])
-# app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
+app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
+app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
+app.include_router(
+    integrations.router, prefix="/api/integrations", tags=["integrations"]
+)
+app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
 
 
 @app.get("/api/health")
