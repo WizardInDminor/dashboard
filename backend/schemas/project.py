@@ -1,7 +1,10 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict
+
+from schemas.note import NoteResponse
+from schemas.task import TaskResponse
 
 
 class ProjectBase(BaseModel):
@@ -28,3 +31,9 @@ class ProjectResponse(ProjectBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    task_count: int = 0
+
+
+class ProjectDetailResponse(ProjectResponse):
+    tasks: List[TaskResponse] = []
+    notes: List[NoteResponse] = []

@@ -10,6 +10,12 @@ export interface Project {
   color: string;
   created_at: string;
   updated_at: string;
+  task_count: number;
+}
+
+export interface ProjectDetail extends Project {
+  tasks: Task[];
+  notes: Note[];
 }
 
 export interface ProjectCreate {
