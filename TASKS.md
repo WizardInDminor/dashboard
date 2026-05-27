@@ -9,25 +9,37 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 ## 🏗️ Phase 1 — Foundation [Start Here]
 
 ### Backend Setup
-- [ ] Create `backend/requirements.txt` with: fastapi, uvicorn, sqlalchemy, pydantic, pydantic-settings, anthropic, httpx, python-dotenv
-- [ ] Build `backend/database.py`: SQLAlchemy engine (SQLite), SessionLocal, Base, get_db dependency
-- [ ] Build `backend/main.py`: FastAPI app, CORS (allow localhost:3000), register all routers, call `create_all` on startup
-- [ ] Create `backend/models/project.py`: Project model (id, title, description, status, color, created_at, updated_at)
-- [ ] Create `backend/models/task.py`: Task model (id, title, description, status, priority, due_date, project_id FK, created_at)
-- [ ] Create `backend/models/note.py`: Note model (id, content, project_id FK, created_at)
-- [ ] Create Pydantic schemas in `backend/schemas/` mirroring each model (Base, Create, Update, Response variants)
+- [x] Create `backend/requirements.txt` with: fastapi, uvicorn, sqlalchemy, pydantic, pydantic-settings, anthropic, httpx, python-dotenv
+  - Note: file already contained all required packages (pinned versions). Verified, no change needed.
+  - Note: the committed `backend/venv/` was broken (built for Python 3.12, runtime here is 3.11) — recreated it and reinstalled requirements. Also untracked `venv/`, `__pycache__/`, `dashboard.db`, and `.env` from git since `.gitignore` already lists them.
+- [x] Build `backend/database.py`: SQLAlchemy engine (SQLite), SessionLocal, Base, get_db dependency
+  - Note: already implemented and correct; left as-is.
+- [x] Build `backend/main.py`: FastAPI app, CORS (allow localhost:3000), register all routers, call `create_all` on startup
+  - Note: imported `models` before `create_all` so tables register; uncommented and registered all five router stubs (projects, tasks, dashboard, integrations, ai) under their `/api/*` prefixes.
+- [x] Create `backend/models/project.py`: Project model (id, title, description, status, color, created_at, updated_at)
+  - Note: status defaults to "active", color defaults to "#6366f1"; has cascade relationships to tasks and notes.
+- [x] Create `backend/models/task.py`: Task model (id, title, description, status, priority, due_date, project_id FK, created_at)
+  - Note: status defaults to "backlog", priority to "medium"; project_id is nullable with ON DELETE CASCADE.
+- [x] Create `backend/models/note.py`: Note model (id, content, project_id FK, created_at)
+- [x] Create Pydantic schemas in `backend/schemas/` mirroring each model (Base, Create, Update, Response variants)
+  - Note: Response variants use `ConfigDict(from_attributes=True)`. Added `TaskStatusUpdate` for the Phase 3 kanban PATCH endpoint.
 
 ### Frontend Setup
-- [ ] Initialize Next.js 14 app in `frontend/` with TypeScript, Tailwind, App Router (`npx create-next-app@latest`)
-- [ ] Install dependencies: `@tanstack/react-query`, `axios`, `zustand`, `@dnd-kit/core`, `@dnd-kit/sortable`, `lucide-react`
-- [ ] Initialize shadcn/ui (`npx shadcn@latest init`) — use "slate" base color, CSS variables on
-- [ ] Add shadcn components: button, card, badge, input, textarea, select, dialog, sheet, dropdown-menu, tabs, separator, avatar
-- [ ] Create `frontend/lib/api.ts`: Axios instance with baseURL from env
-- [ ] Create `frontend/lib/queryClient.ts`: React Query client with sensible defaults
-- [ ] Create `frontend/types/index.ts`: TypeScript interfaces for Project, Task, Note matching backend schemas
-- [ ] Build `frontend/app/layout.tsx`: Root layout wrapping app in QueryClientProvider + Zustand, renders Sidebar
-- [ ] Build `frontend/components/layout/Sidebar.tsx`: Nav links to Dashboard, Projects, Tasks. Collapsible, icons from lucide-react
-- [ ] Build `frontend/components/layout/Header.tsx`: Page title + date/time display
+- [x] Initialize Next.js 14 app in `frontend/` with TypeScript, Tailwind, App Router (`npx create-next-app@latest`)
+  - Decision: `create-next-app@latest` now scaffolds Next 16 + React 19 + Tailwind v4. Pinned to `create-next-app@14` (Next 14.2.35, React 18, Tailwind v3.4) to match the spec and shadcn/ui compatibility.
+  - Note: create-next-app ran `git init` inside `frontend/`, leaving a stale submodule gitlink in the parent repo — removed it and re-added `frontend/` as a normal tracked directory.
+- [x] Install dependencies: `@tanstack/react-query`, `axios`, `zustand`, `@dnd-kit/core`, `@dnd-kit/sortable`, `lucide-react`
+- [x] Initialize shadcn/ui (`npx shadcn@latest init`) — use "slate" base color, CSS variables on
+  - Decision: the shadcn registry (ui.shadcn.com) is blocked (HTTP 403) by this environment's network policy, so the CLI cannot init/add. Set up shadcn manually instead: `components.json` (slate base, cssVariables on), `lib/utils.ts` (cn helper), Tailwind theme extension + `tailwindcss-animate`, and slate HSL CSS variables in `globals.css`.
+- [x] Add shadcn components: button, card, badge, input, textarea, select, dialog, sheet, dropdown-menu, tabs, separator, avatar
+  - Note: written manually (default-style shadcn source) into `components/ui/` with the matching Radix primitives installed, since the registry is unreachable.
+- [x] Create `frontend/lib/api.ts`: Axios instance with baseURL from env
+- [x] Create `frontend/lib/queryClient.ts`: React Query client with sensible defaults
+- [x] Create `frontend/types/index.ts`: TypeScript interfaces for Project, Task, Note matching backend schemas
+- [x] Build `frontend/app/layout.tsx`: Root layout wrapping app in QueryClientProvider + Zustand, renders Sidebar
+  - Note: QueryClientProvider lives in client component `components/providers.tsx`. Zustand needs no provider; created `lib/store.ts` (`useUIStore`) for sidebar collapse state. Layout renders Sidebar + Header + main. Replaced the default template `app/page.tsx` with a minimal placeholder (real home is Phase 4).
+- [x] Build `frontend/components/layout/Sidebar.tsx`: Nav links to Dashboard, Projects, Tasks. Collapsible, icons from lucide-react
+- [x] Build `frontend/components/layout/Header.tsx`: Page title + date/time display
 
 ---
 
@@ -120,6 +132,7 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 
 ## 🚫 Blocked / Needs Decision
 - [ ] Calendar integration — needs decision on source (Google Calendar OAuth vs iCal URL vs manual entry)
+- [ ] SECURITY: `backend/.env` containing a real `ANTHROPIC_API_KEY` was committed to git history (now untracked going forward). The key is still exposed in prior history — recommend rotating the API key and, if desired, scrubbing it from history (e.g. `git filter-repo`). Needs owner decision.
 
 ---
 
