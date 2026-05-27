@@ -34,6 +34,7 @@ export interface Task {
   status: string;
   priority: string;
   due_date: string | null;
+  sort_order: number;
   project_id: number | null;
   created_at: string;
 }

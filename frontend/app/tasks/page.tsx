@@ -2,9 +2,22 @@
 
 import * as React from "react";
 import { Plus } from "lucide-react";
+import {
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 import { useProjects } from "@/hooks/useProjects";
-import { useTasks, type TaskFilters } from "@/hooks/useTasks";
+import { useReorderTasks, useTasks, type TaskFilters } from "@/hooks/useTasks";
 import type { Task } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -69,6 +82,23 @@ export default function TasksPage() {
   if (projectId !== ALL) filters.project_id = Number(projectId);
 
   const { data: tasks, isLoading, isError } = useTasks(filters);
+  const reorder = useReorderTasks(filters);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !tasks) return;
+    // The flat `tasks` array is already in sort_order, and each group renders
+    // its slice in that same order, so moving within the flat list keeps the
+    // dragged row inside its group while updating the global sort_order.
+    const oldIndex = tasks.findIndex((t) => t.id === active.id);
+    const newIndex = tasks.findIndex((t) => t.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    reorder.mutate(arrayMove(tasks, oldIndex, newIndex));
+  }
 
   const projectsById = React.useMemo(() => {
     const map = new Map<number, { title: string; color: string }>();
@@ -213,33 +243,47 @@ export default function TasksPage() {
       )}
 
       {tasks && tasks.length > 0 && (
-        <div className="space-y-6">
-          {orderedKeys.map((key) => (
-            <div key={key}>
-              <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
-                {key}{" "}
-                <span className="font-normal">({groups.get(key)!.length})</span>
-              </h3>
-              <div className="divide-y rounded-lg border">
-                {groups.get(key)!.map((task) => {
-                  const project =
-                    task.project_id != null
-                      ? projectsById.get(task.project_id)
-                      : undefined;
-                  return (
-                    <TaskRow
-                      key={task.id}
-                      task={task}
-                      projectTitle={project?.title}
-                      projectColor={project?.color}
-                      onEdit={openEdit}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="space-y-6">
+            {orderedKeys.map((key) => {
+              const groupTasks = groups.get(key)!;
+              return (
+                <div key={key}>
+                  <h3 className="mb-2 text-sm font-semibold text-muted-foreground">
+                    {key}{" "}
+                    <span className="font-normal">({groupTasks.length})</span>
+                  </h3>
+                  <div className="divide-y rounded-lg border">
+                    <SortableContext
+                      items={groupTasks.map((t) => t.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {groupTasks.map((task) => {
+                        const project =
+                          task.project_id != null
+                            ? projectsById.get(task.project_id)
+                            : undefined;
+                        return (
+                          <TaskRow
+                            key={task.id}
+                            task={task}
+                            projectTitle={project?.title}
+                            projectColor={project?.color}
+                            onEdit={openEdit}
+                          />
+                        );
+                      })}
+                    </SortableContext>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </DndContext>
       )}
 
       <TaskDialog

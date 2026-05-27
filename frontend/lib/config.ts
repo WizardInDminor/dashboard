@@ -7,4 +7,4 @@ export const WEATHER_LOCATION = {
 };
 
 // GitHub username for the activity widget. Change to your own handle.
-export const GITHUB_USERNAME = "torvalds";
+export const GITHUB_USERNAME = "WizardInDminor";

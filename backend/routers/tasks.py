@@ -7,6 +7,7 @@ from database import get_db
 from models.task import Task
 from schemas.task import (
     TaskCreate,
+    TaskReorder,
     TaskResponse,
     TaskStatusUpdate,
     TaskUpdate,
@@ -36,7 +37,24 @@ def list_tasks(
         query = query.filter(Task.status == status)
     if priority:
         query = query.filter(Task.priority == priority)
-    return query.order_by(Task.created_at.desc()).all()
+    # Default ordering is manual (sort_order); created_at breaks ties so
+    # newly created tasks (all sharing sort_order 0) stay stable.
+    return query.order_by(Task.sort_order.asc(), Task.created_at.desc()).all()
+
+
+@router.patch("/reorder")
+def reorder_tasks(payload: TaskReorder, db: Session = Depends(get_db)):
+    tasks = db.query(Task).filter(Task.id.in_(payload.task_ids)).all()
+    by_id = {task.id: task for task in tasks}
+    missing = [tid for tid in payload.task_ids if tid not in by_id]
+    if missing:
+        raise HTTPException(
+            status_code=404, detail=f"Task(s) not found: {missing}"
+        )
+    for position, task_id in enumerate(payload.task_ids):
+        by_id[task_id].sort_order = position
+    db.commit()
+    return {"data": {"count": len(payload.task_ids)}, "message": "Tasks reordered"}
 
 
 @router.post("")

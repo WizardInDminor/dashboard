@@ -30,8 +30,13 @@ class TaskStatusUpdate(BaseModel):
     status: str
 
 
+class TaskReorder(BaseModel):
+    task_ids: list[int]
+
+
 class TaskResponse(TaskBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    sort_order: int
     created_at: datetime
