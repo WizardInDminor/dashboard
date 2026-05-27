@@ -78,3 +78,16 @@ export interface DashboardSummary {
   in_progress_projects: ProjectProgress[];
   recent_projects: Project[];
 }
+
+export interface NewsItem {
+  title: string;
+  url: string | null;
+  source: string;
+}
+
+export interface GithubActivityItem {
+  type: string;
+  repo: string;
+  created_at: string;
+  message: string | null;
+}

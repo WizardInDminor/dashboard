@@ -134,10 +134,14 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 
 ## 📰 Phase 6 — Integrations (Nice to Have)
 
-- [ ] Build `backend/routers/integrations.py`:
+- [x] Build `backend/routers/integrations.py`:
   - `GET /api/integrations/news` — fetches from a free RSS feed (e.g. Hacker News, BBC via rss2json) and returns top 5 headlines
-- [ ] Build `frontend/components/widgets/NewsWidget.tsx`: Shows headlines with links. Refreshes every 30 min
-- [ ] Add GitHub activity widget: `GET /api/integrations/github?username=X` — hits GitHub public API for recent push events
+  - Decision: used the Hacker News public API (no key) — fetch top story IDs, then the top 5 items. Async httpx with a 10s timeout; returns 502 on upstream failure.
+  - Also added `GET /api/integrations/github?username=X` here (see below). NOTE: external APIs (HN, GitHub) are blocked (HTTP 403) by this container's egress, so these server-side endpoints couldn't be verified here — they will work where the backend has internet (e.g. normal local dev). Widgets degrade gracefully.
+- [x] Build `frontend/components/widgets/NewsWidget.tsx`: Shows headlines with links. Refreshes every 30 min
+  - Note: React Query `refetchInterval`/`staleTime` set to 30 minutes.
+- [x] Add GitHub activity widget: `GET /api/integrations/github?username=X` — hits GitHub public API for recent push events
+  - Note: backend filters `PushEvent`s from the public events API (404 if user missing, 502 on error). Frontend `GithubActivityWidget` reads `GITHUB_USERNAME` from `lib/config.ts`. Used the `GitBranch` lucide icon (the mirrored lucide-react build doesn't export `Github`).
 
 ---
 
