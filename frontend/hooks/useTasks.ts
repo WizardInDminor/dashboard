@@ -1,11 +1,88 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import api from "@/lib/api";
 import { projectKeys } from "@/hooks/useProjects";
-import type { Task } from "@/types";
+import type { Task, TaskCreate, TaskUpdate } from "@/types";
 
-// Phase 2: only the status mutation used by the kanban board lives here.
-// The full task hooks (list/create/update/delete) are added in Phase 3.
+export interface TaskFilters {
+  project_id?: number;
+  status?: string;
+  priority?: string;
+}
+
+export const taskKeys = {
+  all: ["tasks"] as const,
+  list: (filters?: TaskFilters) => ["tasks", filters ?? {}] as const,
+};
+
+function invalidateTaskCaches(qc: ReturnType<typeof useQueryClient>, task?: Task) {
+  qc.invalidateQueries({ queryKey: taskKeys.all });
+  qc.invalidateQueries({ queryKey: projectKeys.all });
+  if (task?.project_id != null) {
+    qc.invalidateQueries({ queryKey: projectKeys.detail(task.project_id) });
+  }
+}
+
+export function useTasks(filters?: TaskFilters) {
+  return useQuery({
+    queryKey: taskKeys.list(filters),
+    queryFn: async () => {
+      const { data } = await api.get<Task[]>("/api/tasks", {
+        params: filters,
+      });
+      return data;
+    },
+  });
+}
+
+export function useCreateTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: TaskCreate) => {
+      const { data } = await api.post<{ data: Task; message: string }>(
+        "/api/tasks",
+        payload
+      );
+      return data.data;
+    },
+    onSuccess: (task) => invalidateTaskCaches(qc, task),
+  });
+}
+
+export function useUpdateTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: TaskUpdate;
+    }) => {
+      const { data } = await api.put<{ data: Task; message: string }>(
+        `/api/tasks/${id}`,
+        payload
+      );
+      return data.data;
+    },
+    onSuccess: (task) => invalidateTaskCaches(qc, task),
+  });
+}
+
+export function useDeleteTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/api/tasks/${id}`);
+      return id;
+    },
+    onSuccess: () => invalidateTaskCaches(qc),
+  });
+}
 
 export function useUpdateTaskStatus() {
   const qc = useQueryClient();
@@ -17,11 +94,6 @@ export function useUpdateTaskStatus() {
       );
       return data.data;
     },
-    onSuccess: (task) => {
-      if (task.project_id != null) {
-        qc.invalidateQueries({ queryKey: projectKeys.detail(task.project_id) });
-      }
-      qc.invalidateQueries({ queryKey: ["tasks"] });
-    },
+    onSuccess: (task) => invalidateTaskCaches(qc, task),
   });
 }
