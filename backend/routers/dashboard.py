@@ -13,7 +13,10 @@ router = APIRouter()
 
 @router.get("/summary", response_model=DashboardSummary)
 def get_summary(db: Session = Depends(get_db)):
-    today_start = datetime.combine(datetime.utcnow().date(), time.min)
+    # Local time: this is a single-user tool whose backend runs on the user's
+    # own machine, so "today" must match the user's wall clock — not UTC, which
+    # rolls over hours early/late and made due-today tasks read as overdue.
+    today_start = datetime.combine(datetime.now().date(), time.min)
     today_end = today_start + timedelta(days=1)
 
     overdue_count = (

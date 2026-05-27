@@ -64,7 +64,9 @@ def _get_client() -> anthropic.Anthropic:
 
 def build_context(db: Session) -> str:
     """Summarize active projects and notable tasks for prompt injection."""
-    today_start = datetime.combine(datetime.utcnow().date(), time.min)
+    # Local time — see the note in routers/dashboard.py. The briefing's idea of
+    # "today" must match the user's wall clock, not the server's UTC clock.
+    today_start = datetime.combine(datetime.now().date(), time.min)
     today_end = today_start + timedelta(days=1)
 
     active_projects = (
@@ -89,7 +91,7 @@ def build_context(db: Session) -> str:
         .all()
     )
 
-    lines = [f"Today's date: {datetime.utcnow().date().isoformat()}", ""]
+    lines = [f"Today's date: {datetime.now().date().isoformat()}", ""]
 
     lines.append("Active projects:")
     if active_projects:
