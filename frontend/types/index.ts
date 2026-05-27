@@ -62,3 +62,19 @@ export interface NoteCreate {
 }
 
 export type NoteUpdate = Partial<NoteCreate>;
+
+export interface ProjectProgress {
+  id: number;
+  title: string;
+  color: string;
+  status: string;
+  total_tasks: number;
+  done_tasks: number;
+}
+
+export interface DashboardSummary {
+  overdue_count: number;
+  due_today: Task[];
+  in_progress_projects: ProjectProgress[];
+  recent_projects: Project[];
+}

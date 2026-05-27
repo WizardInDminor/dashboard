@@ -1,13 +1,33 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import * as React from "react";
+
+import { ProjectsWidget } from "@/components/widgets/ProjectsWidget";
+import { TaskSummaryWidget } from "@/components/widgets/TaskSummaryWidget";
+import { WeatherWidget } from "@/components/widgets/WeatherWidget";
+
+function greetingForHour(hour: number): string {
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
 
 export default function Home() {
-  const greeting = "Welcome back";
-  const today = new Date().toLocaleDateString(undefined, {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const [now, setNow] = React.useState<Date | null>(null);
+
+  React.useEffect(() => {
+    setNow(new Date());
+  }, []);
+
+  const greeting = now ? greetingForHour(now.getHours()) : "Welcome back";
+  const today = now
+    ? now.toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "";
 
   return (
     <div className="space-y-6">
@@ -15,14 +35,11 @@ export default function Home() {
         <h2 className="text-2xl font-semibold tracking-tight">{greeting}</h2>
         <p className="text-muted-foreground">{today}</p>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Dashboard</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Widgets will appear here as modules are built out.
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <TaskSummaryWidget />
+        <ProjectsWidget />
+        <WeatherWidget />
+      </div>
     </div>
   );
 }
