@@ -147,12 +147,18 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 
 ## 🎨 Phase 7 — Polish
 
-- [ ] Add loading skeletons to all data-fetching components (shadcn Skeleton)
-- [ ] Add empty states to Projects and Tasks pages
-- [ ] Add toast notifications for create/update/delete actions (shadcn Sonner)
-- [ ] Make layout fully responsive (mobile sidebar collapses to bottom nav)
-- [ ] Dark mode toggle using next-themes
-- [ ] Favicon + page titles per route (`metadata` export in each page.tsx)
+- [x] Add loading skeletons to all data-fetching components (shadcn Skeleton)
+  - Note: added `components/ui/skeleton.tsx`; skeletons on the Projects grid, Tasks list, project detail, and all dashboard widgets.
+- [x] Add empty states to Projects and Tasks pages
+  - Note: already present from Phases 2/3 (dashed-border empty states with a CTA); verified.
+- [x] Add toast notifications for create/update/delete actions (shadcn Sonner)
+  - Note: `sonner` + `components/ui/sonner.tsx` Toaster (themed via next-themes), mounted in Providers. Success/error toasts fire from the project and task mutation hooks. Kanban status-drag intentionally has no success toast (avoids spam) but does toast on error.
+- [x] Make layout fully responsive (mobile sidebar collapses to bottom nav)
+  - Note: Sidebar is `hidden md:flex`; new `BottomNav` (`md:hidden`) gives mobile navigation. Header date hides on small screens; AI button lifts above the bottom nav on mobile.
+- [x] Dark mode toggle using next-themes
+  - Note: `ThemeProvider` (class strategy) in Providers; toggle button in the Header. `.dark` CSS variables already defined in globals.css; `<html suppressHydrationWarning>` added.
+- [x] Favicon + page titles per route (`metadata` export in each page.tsx)
+  - Decision: pages are client components and can't export `metadata`, so per-route titles use server-component `layout.tsx` files (`app/projects/layout.tsx`, `app/tasks/layout.tsx`) plus a root title template (`%s · Personal Dashboard`). Home uses the default title; `/projects/[id]` inherits the Projects title. Favicon ships from `app/favicon.ico`.
 
 ---
 
@@ -164,3 +170,8 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 
 ## ✅ Completed
 <!-- Move finished tasks here with date -->
+- 2026-05-27 — Phases 1–7 completed (each task checked off in place with notes above).
+  Phase 1 Foundation, Phase 2 Projects, Phase 3 Tasks, Phase 4 Dashboard Home,
+  Phase 5 AI Features, Phase 6 Integrations, Phase 7 Polish. Backend verified via
+  TestClient; frontend `npm run build` passes for every phase. Remaining open items
+  are the calendar integration decision and the leaked-API-key rotation (see below).

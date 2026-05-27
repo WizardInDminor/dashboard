@@ -7,6 +7,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useTasks, type TaskFilters } from "@/hooks/useTasks";
 import type { Task } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TaskRow } from "@/components/ui/TaskRow";
 import { TaskDialog } from "@/components/ui/TaskDialog";
 import {
@@ -186,7 +187,11 @@ export default function TasksPage() {
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading tasks...</p>
+        <div className="space-y-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
       )}
       {isError && (
         <p className="text-sm text-destructive">

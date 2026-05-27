@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function TaskSummaryWidget() {
   const { data, isLoading, isError } = useDashboard();
@@ -32,7 +33,10 @@ export function TaskSummaryWidget() {
       </CardHeader>
       <CardContent className="space-y-3">
         {isLoading && (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-3/4" />
+          </div>
         )}
         {isError && (
           <p className="text-sm text-destructive">Failed to load.</p>

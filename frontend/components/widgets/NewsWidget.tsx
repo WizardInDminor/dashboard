@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function NewsWidget() {
   const { data, isLoading, isError } = useNews();
@@ -23,7 +24,11 @@ export function NewsWidget() {
       </CardHeader>
       <CardContent>
         {isLoading && (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-5 w-full" />
+            ))}
+          </div>
         )}
         {isError && (
           <p className="text-sm text-destructive">Couldn&apos;t load news.</p>
