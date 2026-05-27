@@ -46,20 +46,29 @@ Do not skip tasks unless marked [BLOCKED]. Do not ask for clarification on tasks
 ## 📁 Phase 2 — Projects Module
 
 ### Backend
-- [ ] Build `backend/routers/projects.py`:
+- [x] Build `backend/routers/projects.py`:
   - `GET /api/projects` — list all, support `?status=` filter
   - `POST /api/projects` — create
   - `GET /api/projects/{id}` — get single with tasks + notes
   - `PUT /api/projects/{id}` — update
   - `DELETE /api/projects/{id}` — delete (cascade tasks + notes)
+  - Note: mutations return `{ data, message }` per CLAUDE.md; list returns a plain array; detail returns `ProjectDetailResponse` (project + tasks + notes).
+  - Note: added a `task_count` field to `ProjectResponse`, populated in the list endpoint via an outer-join `func.count` (avoids N+1) and set to `len(tasks)` on the detail endpoint. Cascade delete verified (tasks + notes removed with the project).
+  - Decision: the kanban needs to persist drags, so the single `PATCH /api/tasks/{id}/status` endpoint was added to `routers/tasks.py` now (Phase 2). The rest of the tasks router is built in Phase 3.
 
 ### Frontend
-- [ ] Build `frontend/hooks/useProjects.ts`: React Query hooks (useProjects, useProject, useCreateProject, useUpdateProject, useDeleteProject)
-- [ ] Build `frontend/app/projects/page.tsx`: Grid of project cards. Each card shows title, status badge, task count, color accent. "New Project" button opens a dialog
-- [ ] Build `frontend/components/ui/ProjectCard.tsx`: Card component with color strip, title, description, status, quick actions
-- [ ] Build `frontend/components/ui/ProjectDialog.tsx`: Create/edit form in a shadcn Dialog
-- [ ] Build `frontend/app/projects/[id]/page.tsx`: Project detail page with tabs: Kanban | List | Notes
-- [ ] Build Kanban board on project detail page using dnd-kit. Columns: Backlog, In Progress, Review, Done. Cards are tasks — dragging updates task status via API
+- [x] Build `frontend/hooks/useProjects.ts`: React Query hooks (useProjects, useProject, useCreateProject, useUpdateProject, useDeleteProject)
+  - Note: also added `frontend/hooks/useTasks.ts` with just `useUpdateTaskStatus` (used by the kanban); expanded in Phase 3.
+- [x] Build `frontend/app/projects/page.tsx`: Grid of project cards. Each card shows title, status badge, task count, color accent. "New Project" button opens a dialog
+  - Note: includes loading/error/empty states.
+- [x] Build `frontend/components/ui/ProjectCard.tsx`: Card component with color strip, title, description, status, quick actions
+  - Note: quick actions (Edit/Delete) live in a dropdown menu; delete uses a confirm() guard.
+- [x] Build `frontend/components/ui/ProjectDialog.tsx`: Create/edit form in a shadcn Dialog
+  - Decision: color picker uses inline `style={{ backgroundColor }}` for the swatches and project color strips. This is the documented exception to the Tailwind-only rule — colors are dynamic data values that Tailwind's JIT cannot generate from runtime strings.
+- [x] Build `frontend/app/projects/[id]/page.tsx`: Project detail page with tabs: Kanban | List | Notes
+  - Note: Notes tab is read-only (displays notes from the detail endpoint); there is no notes write API in any phase spec, so creation was not added.
+- [x] Build Kanban board on project detail page using dnd-kit. Columns: Backlog, In Progress, Review, Done. Cards are tasks — dragging updates task status via API
+  - Note: `KanbanBoard.tsx` uses `@dnd-kit/core` (DndContext + useDraggable + useDroppable + DragOverlay); drop optimistically updates local state and fires `PATCH /api/tasks/{id}/status`. Drag interaction was not manually exercised in a browser in this environment (no GUI); build, types, and the underlying API were verified.
 
 ---
 
