@@ -92,7 +92,7 @@ export function AISidebar() {
       <SheetTrigger asChild>
         <Button
           size="icon"
-          className="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full shadow-lg"
+          className="fixed bottom-20 right-6 z-40 h-12 w-12 rounded-full shadow-lg md:bottom-6"
           aria-label="Open AI assistant"
         >
           <Bot className="h-5 w-5" />

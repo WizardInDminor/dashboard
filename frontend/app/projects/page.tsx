@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import type { Project } from "@/types";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { ProjectDialog } from "@/components/ui/ProjectDialog";
 
@@ -40,7 +41,11 @@ export default function ProjectsPage() {
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading projects...</p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-36 w-full" />
+          ))}
+        </div>
       )}
       {isError && (
         <p className="text-sm text-destructive">

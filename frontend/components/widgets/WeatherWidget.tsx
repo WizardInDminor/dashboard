@@ -20,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface WeatherResponse {
   current: { temperature_2m: number; weather_code: number };
@@ -77,7 +78,10 @@ export function WeatherWidget() {
       </CardHeader>
       <CardContent>
         {isLoading && (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-32" />
+            <Skeleton className="h-16 w-full" />
+          </div>
         )}
         {isError && (
           <p className="text-sm text-destructive">

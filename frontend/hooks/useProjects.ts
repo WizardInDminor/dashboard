@@ -3,6 +3,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import api from "@/lib/api";
 import type {
@@ -53,7 +54,9 @@ export function useCreateProject() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: projectKeys.all });
+      toast.success("Project created");
     },
+    onError: () => toast.error("Failed to create project"),
   });
 }
 
@@ -76,7 +79,9 @@ export function useUpdateProject() {
     onSuccess: (project) => {
       qc.invalidateQueries({ queryKey: projectKeys.all });
       qc.invalidateQueries({ queryKey: projectKeys.detail(project.id) });
+      toast.success("Project updated");
     },
+    onError: () => toast.error("Failed to update project"),
   });
 }
 
@@ -89,6 +94,8 @@ export function useDeleteProject() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: projectKeys.all });
+      toast.success("Project deleted");
     },
+    onError: () => toast.error("Failed to delete project"),
   });
 }

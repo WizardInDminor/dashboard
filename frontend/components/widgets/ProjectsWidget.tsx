@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function ProgressBar({ value, color }: { value: number; color: string }) {
   return (
@@ -42,7 +43,10 @@ export function ProjectsWidget() {
       </CardHeader>
       <CardContent className="space-y-4">
         {isLoading && (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
         )}
         {isError && (
           <p className="text-sm text-destructive">Failed to load.</p>

@@ -3,6 +3,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import api from "@/lib/api";
 import { projectKeys } from "@/hooks/useProjects";
@@ -49,7 +50,11 @@ export function useCreateTask() {
       );
       return data.data;
     },
-    onSuccess: (task) => invalidateTaskCaches(qc, task),
+    onSuccess: (task) => {
+      invalidateTaskCaches(qc, task);
+      toast.success("Task created");
+    },
+    onError: () => toast.error("Failed to create task"),
   });
 }
 
@@ -69,7 +74,11 @@ export function useUpdateTask() {
       );
       return data.data;
     },
-    onSuccess: (task) => invalidateTaskCaches(qc, task),
+    onSuccess: (task) => {
+      invalidateTaskCaches(qc, task);
+      toast.success("Task updated");
+    },
+    onError: () => toast.error("Failed to update task"),
   });
 }
 
@@ -80,7 +89,11 @@ export function useDeleteTask() {
       await api.delete(`/api/tasks/${id}`);
       return id;
     },
-    onSuccess: () => invalidateTaskCaches(qc),
+    onSuccess: () => {
+      invalidateTaskCaches(qc);
+      toast.success("Task deleted");
+    },
+    onError: () => toast.error("Failed to delete task"),
   });
 }
 
@@ -95,5 +108,6 @@ export function useUpdateTaskStatus() {
       return data.data;
     },
     onSuccess: (task) => invalidateTaskCaches(qc, task),
+    onError: () => toast.error("Failed to update task status"),
   });
 }
